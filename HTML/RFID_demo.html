@@ -1,0 +1,145 @@
+<!-- V2.0 -->
+<!DOCTYPE html>
+<html lan="en">
+  <head>
+    <title>Technology Solutions UHF RFID Demo</title>
+    <script src="./js/libs/zepto.min.js"></script>
+    <!-- <script src="/js/libs/jquery-1.10.2.min.js"></script> -->
+    <script src="./js/libs/yepnope.js"></script>
+    <script>
+      yepnope({
+        test : window.comm,
+        nope : ["./js/libs/comm-polyfill-0.1.js"]
+      });
+      
+      $(document).ready(function() {
+        // Give some time to yepnope to load the polyfiller
+        // **TODO** try to understand why this is necessary.
+        setTimeout("fnSetup();",1000);
+      });
+    </script>
+   
+   <style>
+        body
+        {
+                padding: 0px; 
+                margin: 0px; 
+        }
+        
+        h1
+        {
+        font-size: 14pt;
+        font-family: Verdana, Arial, sans-serif;
+        }
+        .centred
+        {
+                width:100%;
+                text-align: center;
+                vertical-align: text-middle;
+        }
+        
+        .rightbtn
+        {
+                float: right;
+        }
+        
+        .leftbtn
+        {
+                float: left;
+        }
+        
+        .monospace_font
+        {
+                font-family:"Courier New", monospace;
+/*              font-size:0.9em;*/
+        }
+
+        .noborder
+        {
+        border-style:none;
+        }
+        
+        .solidborder
+        {
+        border-style:solid;
+        }
+        
+        .logotable
+        {
+                width:100%;
+                text-align: center;
+                border-style:none;
+        }
+        </style>
+   
+   
+   <script type="text/javascript">
+     function fnSetup() {
+       // Change value of COM to whichever the UHF reader is connected to, for example COM2 by default for the 1119 on MC55
+       // or MC65, or the appropriate Bluetooth serial port for the 1128 or 1097
+       comm.port      = "COM2";
+       comm.baudRate  = "115200";
+       comm.dataBits  = "8";
+       comm.stopBits  = "1";
+       comm.parity    = "No Parity";
+       comm.handshake = "HW";
+       comm.time      = "250";
+       comm.open();
+
+       // Attempt communication with the reader
+       fnGetVersion(); 
+     }
+        
+     function fnGetVersion() {
+       // Change the handler for CommEvent and use long timeout to attempt to receive full response at once.*/
+       comm.commEvent = "rxSerialNumber('%s')";
+       comm.writeString = ".vr";
+       comm.writeBytes = "%0D %0A";
+     }
+
+     function rxSerialNumber(data) {
+       alert(data)
+       var intSerialNumberLocation;
+       var txtResponse = "No reader connected";
+                                                                       /*Locate serial number part of version response */
+      intSerialNumberLocation = data.indexOf("RS:");
+      if (intSerialNumberLocation > 0) {
+        // If found then extract just the serial number
+        txtResponse = data.substr((intSerialNumberLocation+4),14);
+        txtResponse += " connected"; /*Complete the message */
+      }
+      $('#status').text(txtResponse);       /*Update the display */
+      console.log(txtResponse);
+     }
+</script>
+
+  
+  </head>
+   
+  <!-- <body onload="fnSetup()"> -->
+  <body>
+    <div class="centred" >
+      <h1 id='heading'> Technology Solutions PocketBrowser Demonstration </h1> <!-- Blanked after first inventory to save screen space -->
+      <br/>
+      <p id='status'> No reader connected </p> <!-- Will be updated with serial number if the reader is connected -->
+      <p id='battery'> Battery level unknown </p> <!-- Updated with battery level whenever Battery button is tapped -->
+    </div>
+         
+    <table width="100%" class="noborder">
+      <tr><td>EPCs read:</td></tr> <!-- Heading for list of EPCs -->
+    </table>        
+               
+    <!-- Will contain list of EPCs after an inventory. Initial text is replaced with inventory results -->
+    <table width="100%" class="solidborder">
+      <tr><td id='results' class="monospace_font">Tap Inventory button to find tags</td></tr>
+    </table>
+         
+    <br/>
+    <input class="leftbtn" type='button' onclick='fnGetVersion();' value='Versions'/>
+    <table width="100%" class="logotable">
+      <tr><td><img src="./assets/TSL_Logo.bmp" alt="Technology Solutions Logo" title="Technology Solutions Logo" height="71" width="150" /></td></tr>
+    </table>
+  </body>
+</html>
+
+
