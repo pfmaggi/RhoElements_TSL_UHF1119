@@ -1,3 +1,8 @@
 #OS junk files
 [Tt]humbs.db
 *.DS_Store
+
+# local sample files
+HTML/RFID_demo2.html
+HTML/RFID_demo3.hmtl
+reply_version.txt

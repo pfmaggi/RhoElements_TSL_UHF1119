@@ -90,6 +90,11 @@
        fnGetVersion(); 
      }
         
+     function fnExit() {
+       comm.close();
+       application.quit();
+     }
+
      function fnGetVersion() {
        // Change the handler for CommEvent and use long timeout to attempt to receive full response at once.*/
        comm.commEvent = "rxSerialNumber('%s')";
@@ -98,7 +103,7 @@
      }
 
      function rxSerialNumber(data) {
-       alert(data)
+       // alert(data)
        var intSerialNumberLocation;
        var txtResponse = "No reader connected";
                                                                        /*Locate serial number part of version response */
@@ -111,6 +116,52 @@
       $('#status').text(txtResponse);       /*Update the display */
       console.log(txtResponse);
      }
+
+     function getBattery() {
+       comm.commEvent = "rxBattery('%s')";
+       comm.writeString = ".bl";
+       comm.writeBytes = "%0D %0A";
+     }
+        
+     function rxBattery(data) {
+       alert(data)
+       var intBatteryLevelLocation
+       var txtResponse = "No reader connected";
+                                                                       /*Locate serial number part of version response */
+      intBatteryLevelLocation = data.indexOf("BP:");
+      if (intBatteryLevelLocation > 0) {
+        // If found then extract just the serial number
+        txtResponse = data.substr((intBatteryLevelLocation+4),4);
+      }
+
+       /*Update display*/
+       $('#battery').text(txtResponse);
+       console.log(txtResponse);
+     }       
+                
+     function getInventory() {
+       $('#heading').text(''); /*Maximise available screen space by blanking heading */
+       comm.commEvent = "rxInventory('%s')";
+       comm.writeString = ".iv";
+       comm.writeBytes = "%0D %0A";
+     }
+                
+     function rxInventory(data) {
+       alert(data)
+       var intInventoryLocation
+       var txtResponse = "No reader connected";
+       /*Locate serial number part of version response */
+       intInventoryLocation = data.indexOf("EP:");
+       if (intInventoryLocation > 0) {
+         // If found then extract just the serial number
+         txtResponse = data.substr((intInventoryLocation+4),20);
+       }
+
+       /*Update display*/
+       $('#results').html(txtResponse);
+       console.log(txtResponse);
+     }
+
 </script>
 
   
@@ -136,6 +187,11 @@
          
     <br/>
     <input class="leftbtn" type='button' onclick='fnGetVersion();' value='Versions'/>
+    <input class="rightbtn" type='button' onclick='getInventory();' value='Inventory'/>
+    <input class="rightbtn" type='button' onclick='getBattery();' value='Battery' />
+    <br>
+    <input class="leftbtn" type='button' onclick='fnSetup();' value='Setup'/>
+    <input class="rightbtn" type='button' onclick='fnExit();' value='Exit'/>
     <table width="100%" class="logotable">
       <tr><td><img src="./assets/TSL_Logo.bmp" alt="Technology Solutions Logo" title="Technology Solutions Logo" height="71" width="150" /></td></tr>
     </table>
